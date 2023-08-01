@@ -1,9 +1,30 @@
-import timeit, sys, io, contextlib
+import timeit, sys, io
 from typing import Optional, Union, TextIO, BinaryIO
 
 
 class TimeItError(Exception):
   """A custom exception used to report errors in use of Timer class"""
+
+
+class TimeItDecorator:
+  prefix = " "
+  count = 0
+
+
+def timeit_decorator(on=True):
+  def actual_decorator(func):
+    def wrapper(*args, **kwargs):
+      if on:
+        start = timeit.default_timer()
+        TimeItDecorator.count += 1
+        result = func(*args, **kwargs)
+        TimeItDecorator.count -= 1
+        if on:
+          end = timeit.default_timer()
+          print(f"{TimeItDecorator.count*TimeItDecorator.prefix}{func.__name__}: {(end - start)*1000}ms")
+        return result
+    return wrapper
+  return actual_decorator
 
 
 class TimeIt:
@@ -60,7 +81,7 @@ class TimeIt:
       self.output.close()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__1":
   TimeIt.prefix = '  '
   
   # Write time elapsed information to stdout, with default title
@@ -97,3 +118,4 @@ if __name__ == "__main__":
       # Your time-consuming code here
       for _ in range(1000000):
         pass
+
